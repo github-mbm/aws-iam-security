@@ -4,7 +4,9 @@ pipeline {
     stages {
         stage('Clone Repo') {
             steps {
-                git 'https://github.com/github-mbm/aws-iam-security.git'
+                //git 'https://github.com/github-mbm/aws-iam-security.git'
+                git branch: 'develop', url: 'https://github.com/github-mbm/aws-iam-security.git'
+
             }
         }
 
