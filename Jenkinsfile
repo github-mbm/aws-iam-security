@@ -17,7 +17,7 @@ pipeline {
             steps {
                 sh '''
                 cd terraform
-                terraform init -input=false -migrate-state
+                terraform init 
                 terraform apply -auto-approve
                 '''
             }
