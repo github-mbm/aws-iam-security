@@ -4,9 +4,7 @@ pipeline {
     stages {
         stage('Clone Repo') {
             steps {
-                //git 'https://github.com/github-mbm/aws-iam-security.git'
                 git branch: 'develop', url: 'https://github.com/github-mbm/aws-iam-security.git'
-
             }
         }
 
@@ -20,7 +18,7 @@ pipeline {
         stage('Get IP') {
             steps {
                 script {
-                    APP_IP = sh(
+                    env.APP_IP = sh(
                         script: 'cd terraform && terraform output -raw app_server_ip',
                         returnStdout: true
                     ).trim()
@@ -31,14 +29,14 @@ pipeline {
         stage('Deploy') {
             steps {
                 sshagent(['app-server-key']) {
-                    sh '''
-                    scp -o StrictHostKeyChecking=no app.py ec2-user@${APP_IP}:/home/ec2-user/
+                    sh """
+                    scp -o StrictHostKeyChecking=no app.py ec2-user@${env.APP_IP}:/home/ec2-user/
 
-                    ssh -o StrictHostKeyChecking=no ec2-user@${APP_IP} '
+                    ssh -o StrictHostKeyChecking=no ec2-user@${env.APP_IP} '
                         pkill -f app.py || true
-                        nohup python3 app.py > app.log 2>&1 &
+                        nohup python3 /home/ec2-user/app.py > app.log 2>&1 &
                     '
-                    '''
+                    """
                 }
             }
         }
