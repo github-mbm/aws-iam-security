@@ -26,16 +26,20 @@ pipeline {
             }
         }
 
-        stage('Deploy App') {
-            steps {
-                sh """
-        scp -o StrictHostKeyChecking=no -i key.pem app.py ec2-user@${APP_IP}:/home/ec2-user/
+        stages {
+            stage('Deploy') {
+                steps {
+                    sshagent(['app-server-key']) {
+                        sh '''
+          scp -o StrictHostKeyChecking=no app.py ec2-user@${APP_IP}:/home/ec2-user/
 
-        ssh -o StrictHostKeyChecking=no -i key.pem ec2-user@${APP_IP} '
-          pkill -f app.py || true
-          nohup python3 /home/ec2-user/app.py > app.log 2>&1 &
-        '
-        """
+          ssh -o StrictHostKeyChecking=no ec2-user@${APP_IP} '
+            pkill -f app.py || true
+            nohup python3 app.py > app.log 2>&1 &
+          '
+          '''
+                    }
+                }
             }
         }
     }
